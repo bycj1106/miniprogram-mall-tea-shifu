@@ -1,0 +1,42 @@
+<view class="container">
+  <view class="profile-header">
+    <view class="user-info" wx:if="{{hasUserInfo}}">
+      <image class="avatar" src="{{userInfo.avatarUrl}}" mode="aspectFill"/>
+      <text class="nickname">{{userInfo.nickName}}</text>
+      <view class="level-badge">
+        <text class="level-text">{{level === 'gold' ? '金叶会员' : level === 'silver' ? '银叶会员' : '铜叶会员'}}</text>
+      </view>
+    </view>
+    <view class="login-prompt" wx:else bindtap="goToLogin">
+      <image class="avatar" src="https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lxia07jQodd2fGIYQfG0LAaoGFMHmYfRy0qYQ3qVblbl9n7CWViaNY4ZO5tC5iaLQ/0" mode="aspectFill"/>
+      <text class="login-text">点击登录</text>
+    </view>
+  </view>
+
+  <view class="stats-section">
+    <view class="stat-item">
+      <text class="stat-value">{{stats.points}}</text>
+      <text class="stat-label">积分</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">{{stats.coupons}}</text>
+      <text class="stat-label">优惠券</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-value">¥{{stats.balance}}</text>
+      <text class="stat-label">余额</text>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="menu-item" wx:for="{{menuItems}}" wx:key="id" bindtap="goToMenu" data-url="{{item.url}}">
+      <view class="menu-left">
+        <text class="menu-icon">{{item.icon}}</text>
+        <text class="menu-name">{{item.name}}</text>
+      </view>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+</view>

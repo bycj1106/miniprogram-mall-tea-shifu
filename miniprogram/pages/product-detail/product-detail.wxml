@@ -1,0 +1,86 @@
+<view class="container" wx:if="{{product}}">
+  <swiper class="product-images" indicator-dots indicator-active-color="#556B2F" bindchange="onImageChange">
+    <swiper-item wx:for="{{product.images}}" wx:key="index" bindtap="previewImages">
+      <image class="image" src="{{item}}" mode="aspectFill"/>
+    </swiper-item>
+  </swiper>
+  <view class="image-counter">{{currentImage + 1}}/{{product.images.length}}</view>
+
+  <view class="product-header">
+    <view class="tags">
+      <text class="tag tag-hot" wx:if="{{product.isHot}}">热销</text>
+      <text class="tag tag-new" wx:if="{{product.isNew}}">新品</text>
+    </view>
+    <text class="product-name">{{product.name}}</text>
+    <view class="product-meta">
+      <text class="meta-item">产地：{{product.origin}}</text>
+      <text class="meta-item">年份：{{product.year}}</text>
+    </view>
+  </view>
+
+  <view class="price-section">
+    <view class="price-info">
+      <text class="price-label">优惠价</text>
+      <text class="price-discount">¥{{product.priceDiscount}}</text>
+      <text class="price-retail">¥{{product.priceRetail}}</text>
+    </view>
+    <view class="save-info">
+      <text class="save-amount">省¥{{product.priceRetail - product.priceDiscount}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">口感特征</view>
+    <view class="radar-container">
+      <canvas type="2d" id="radarChart" class="radar-chart"></canvas>
+      <view class="radar-labels">
+        <view class="radar-label" style="top: 10%; left: 50%; transform: translateX(-50%);">
+          <text>香气</text>
+          <text class="value">{{product.radarData.aroma}}</text>
+        </view>
+        <view class="radar-label" style="top: 30%; right: 10%;">
+          <text>鲜爽</text>
+          <text class="value">{{product.radarData.fresh}}</text>
+        </view>
+        <view class="radar-label" style="bottom: 20%; right: 10%;">
+          <text>回甘</text>
+          <text class="value">{{product.radarData.sweet}}</text>
+        </view>
+        <view class="radar-label" style="bottom: 20%; left: 10%;">
+          <text>汤感</text>
+          <text class="value">{{product.radarData.body}}</text>
+        </view>
+        <view class="radar-label" style="top: 30%; left: 10%;">
+          <text>苦涩</text>
+          <text class="value">{{product.radarData.bitter}}</text>
+        </view>
+        <view class="radar-label" style="top: 55%; left: 50%; transform: translateX(-50%);">
+          <text>耐泡</text>
+          <text class="value">{{product.radarData.durable}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">产品描述</view>
+    <text class="description">{{product.description}}</text>
+  </view>
+
+  <view class="section">
+    <view class="section-title">口感标签</view>
+    <view class="flavor-tags">
+      <text class="flavor-tag" wx:for="{{product.tags}}" wx:key="index">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="bottom-actions">
+    <view class="action-icons">
+      <view class="action-icon" bindtap="toggleCollection">
+        <text class="icon {{isCollected ? 'collected' : ''}}">{{isCollected ? '❤️' : '🤍'}}</text>
+        <text class="icon-text">收藏</text>
+      </view>
+    </view>
+    <view class="btn-cart" bindtap="addToCart">加入购物车</view>
+  </view>
+</view>

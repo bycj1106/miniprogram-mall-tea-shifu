@@ -1,0 +1,40 @@
+<view class="container">
+  <view class="stores-list">
+    <view class="store-card" wx:for="{{stores}}" wx:key="_id">
+      <view class="store-header">
+        <text class="store-name">{{item.name}}</text>
+        <text class="store-distance">{{item.distance}}km</text>
+      </view>
+      <view class="store-address">
+        <text class="address-icon">📍</text>
+        <text class="address-text">{{item.address}}</text>
+      </view>
+      <view class="store-actions">
+        <view class="action-btn nav-btn" bindtap="openNavigation" data-store="{{item}}">
+          <text class="btn-icon">🗺️</text>
+          <text>导航到店</text>
+        </view>
+        <view class="action-btn call-btn" bindtap="makeCall" data-phone="{{item.phone}}">
+          <text class="btn-icon">📞</text>
+          <text>联系电话</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="contact-section">
+    <view class="section-title">联系我们</view>
+    <view class="contact-item">
+      <text class="contact-label">客服热线</text>
+      <text class="contact-value">400-888-8888</text>
+    </view>
+    <view class="contact-item">
+      <text class="contact-label">商务邮箱</text>
+      <text class="contact-value">service@shifutea.com</text>
+    </view>
+    <view class="contact-item">
+      <text class="contact-label">微信客服</text>
+      <text class="contact-value">shifu-tea888</text>
+    </view>
+  </view>
+</view>

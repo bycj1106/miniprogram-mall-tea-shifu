@@ -1,0 +1,11 @@
+{
+  "name": "getProducts",
+  "version": "1.0.0",
+  "description": "获取产品列表",
+  "main": "index.js",
+  "author": "shifufu",
+  "license": "MIT",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

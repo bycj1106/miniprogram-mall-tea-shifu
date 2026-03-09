@@ -1,0 +1,103 @@
+page {
+  --bg-paper: #F3F0E6;
+  --bg-card: #FFFEFA;
+  --primary: #556B2F;
+  --primary-dark: #3D4A22;
+  --accent-red: #A93226;
+  --accent-gold: #C9A227;
+  --text-ink: #2B2B2B;
+  --text-light: #595959;
+  --text-muted: #999999;
+  --border-color: #D4C9B5;
+  
+  background-color: var(--bg-paper);
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Serif SC", serif;
+  color: var(--text-ink);
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.container {
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #fff;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  padding: 20rpx 40rpx;
+  border: none;
+  text-align: center;
+}
+
+.btn-primary:active {
+  opacity: 0.9;
+}
+
+.price-retail {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  font-size: 24rpx;
+}
+
+.price-discount {
+  color: var(--accent-red);
+  font-size: 32rpx;
+  font-weight: bold;
+  font-family: Georgia, serif;
+}
+
+.card {
+  background: var(--bg-card);
+  border-radius: 12rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.tag-hot {
+  background: var(--accent-red);
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+}
+
+.tag-new {
+  background: var(--primary);
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 4rpx;
+}
+
+.seal {
+  width: 60rpx;
+  height: 60rpx;
+  background: var(--accent-red);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/products/products",
+    "pages/product-detail/product-detail",
+    "pages/stores/stores",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#556B2F",
+    "navigationBarTitleText": "拾福茶仓",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F3F0E6"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#556B2F",
+    "backgroundColor": "#FFFEFA",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/products/products",
+        "text": "茶叶",
+        "iconPath": "images/tab-tea.png",
+        "selectedIconPath": "images/tab-tea-active.png"
+      },
+      {
+        "pagePath": "pages/stores/stores",
+        "text": "门店",
+        "iconPath": "images/tab-store.png",
+        "selectedIconPath": "images/tab-store-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "images/tab-profile.png",
+        "selectedIconPath": "images/tab-profile-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}
