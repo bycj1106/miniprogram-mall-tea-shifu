@@ -1,3 +1,10 @@
+/**
+ * 产品详情页逻辑
+ */
+const { productService, collectionService, cartService } = require('../../services');
+const { showLoading, hideLoading, showError, showSuccess } = require('../../utils/request');
+const { isEmpty } = require('../../utils/util');
+
 Page({
   data: {
     product: null,
@@ -12,31 +19,47 @@ Page({
     }
   },
 
-  loadProduct(id) {
-    const db = wx.cloud.database();
-    db.collection('products').doc(id).get().then(res => {
-      this.setData({ product: res.data });
-      this.checkCollection(id);
-    }).catch(err => {
-      this.setData({
-        product: this.getMockProduct(id)
-      });
-    });
+  async loadProduct(id) {
+    showLoading('加载中...');
+    try {
+      const product = await productService.getProductDetail(id);
+      if (product) {
+        this.setData({ product });
+        this.checkCollection(id);
+      } else {
+        this.setData({ product: this.getMockProduct(id) });
+      }
+    } catch (err) {
+      console.error('[ProductDetail] Load product failed:', err);
+      showError('加载失败，请点击重试');
+      this.setData({ product: this.getMockProduct(id) });
+    } finally {
+      hideLoading();
+    }
+  },
+
+  async checkCollection(productId) {
+    try {
+      const isCollected = await collectionService.checkIsCollected(productId);
+      this.setData({ isCollected });
+    } catch (err) {
+      console.error('[ProductDetail] Check collection failed:', err);
+    }
   },
 
   getMockProduct(id) {
     const products = {
-      '1': { 
-        _id: '1', 
-        name: '西湖龙井 · 明前特级', 
-        category: '绿茶', 
+      '1': {
+        _id: '1',
+        name: '西湖龙井 · 明前特级',
+        category: '绿茶',
         images: [
           'https://img.freepik.com/free-photo/green-tea-bud-leaves_1339-133457.jpg',
           'https://img.freepik.com/free-photo/green-tea-leaves_146132-3986.jpg',
           'https://img.freepik.com/free-photo/glass-cup-with-green-tea_146132-2086.jpg'
         ],
-        priceRetail: 1288, 
-        priceDiscount: 688, 
+        priceRetail: 1288,
+        priceDiscount: 688,
         tags: ['豆香', '鲜爽'],
         origin: '杭州西湖',
         year: '2024年新茶',
@@ -78,41 +101,31 @@ Page({
     return products[id] || products['1'];
   },
 
-  checkCollection(productId) {
-    const db = wx.cloud.database();
-    wx.cloud.callFunction({
-      name: 'login'
-    }).then(res => {
-      const openid = res.result.openid;
-      db.collection('collections').where({
-        _openid: openid,
-        productId: productId
-      }).get().then(res => {
-        if (res.data && res.data.length > 0) {
-          this.setData({ isCollected: true });
-        }
-      }).catch(err => {});
-    }).catch(err => {});
-  },
-
   onReady() {
     setTimeout(() => {
-      this.drawRadarChart();
+      if (this.data.product && this.data.product.radarData) {
+        this.drawRadarChart();
+      }
     }, 500);
   },
 
   drawRadarChart() {
-    if (!this.data.product || !this.data.product.radarData) return;
-    
+    if (!this.data.product || !this.data.product.radarData) {
+      return;
+    }
+
     const query = wx.createSelectorQuery();
     query.select('#radarChart')
       .fields({ node: true, size: true })
       .exec((res) => {
-        if (!res[0]) return;
+        if (!res[0]) {
+          return;
+        }
+
         const canvas = res[0].node;
         const ctx = canvas.getContext('2d');
         const dpr = wx.getSystemInfoSync().pixelRatio;
-        
+
         canvas.width = res[0].width * dpr;
         canvas.height = res[0].height * dpr;
         ctx.scale(dpr, dpr);
@@ -126,6 +139,7 @@ Page({
 
         ctx.clearRect(0, 0, res[0].width, res[0].height);
 
+        // 绘制背景网格
         for (let i = 1; i <= 5; i++) {
           ctx.beginPath();
           const r = (radius / 5) * i;
@@ -133,8 +147,11 @@ Page({
             const angle = (Math.PI * 2 / sides) * j - Math.PI / 2;
             const x = centerX + r * Math.cos(angle);
             const y = centerY + r * Math.sin(angle);
-            if (j === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+            if (j === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
           }
           ctx.closePath();
           ctx.strokeStyle = '#E8E4D6';
@@ -142,27 +159,35 @@ Page({
           ctx.stroke();
         }
 
+        // 绘制外框
         ctx.beginPath();
         for (let j = 0; j < sides; j++) {
           const angle = (Math.PI * 2 / sides) * j - Math.PI / 2;
           const x = centerX + radius * Math.cos(angle);
           const y = centerY + radius * Math.sin(angle);
-          if (j === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+          if (j === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
         }
         ctx.closePath();
         ctx.strokeStyle = '#D4C9B5';
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        // 绘制数据区域
         ctx.beginPath();
         for (let j = 0; j < sides; j++) {
           const angle = (Math.PI * 2 / sides) * j - Math.PI / 2;
           const r = (values[j] / 100) * radius;
           const x = centerX + r * Math.cos(angle);
           const y = centerY + r * Math.sin(angle);
-          if (j === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+          if (j === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
         }
         ctx.closePath();
         ctx.fillStyle = 'rgba(85, 107, 47, 0.2)';
@@ -171,6 +196,7 @@ Page({
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        // 绘制数据点
         for (let j = 0; j < sides; j++) {
           const angle = (Math.PI * 2 / sides) * j - Math.PI / 2;
           const r = (values[j] / 100) * radius;
@@ -191,71 +217,61 @@ Page({
   },
 
   previewImages() {
+    const { product, currentImage } = this.data;
+    if (!product || !product.images) {
+      return;
+    }
     wx.previewImage({
-      current: this.data.product.images[this.data.currentImage],
-      urls: this.data.product.images
+      current: product.images[currentImage],
+      urls: product.images
     });
   },
 
-  toggleCollection() {
-    const db = wx.cloud.database();
-    const productId = this.data.product._id;
-    
-    wx.cloud.callFunction({
-      name: 'login'
-    }).then(res => {
-      const openid = res.result.openid;
-      
-      if (this.data.isCollected) {
-        db.collection('collections').where({
-          _openid: openid,
-          productId: productId
-        }).remove().then(res => {
-          this.setData({ isCollected: false });
-          wx.showToast({ title: '已取消收藏', icon: 'none' });
-        });
+  async toggleCollection() {
+    const { product, isCollected } = this.data;
+    if (!product) {
+      return;
+    }
+
+    try {
+      if (isCollected) {
+        await collectionService.removeCollection(product._id);
+        this.setData({ isCollected: false });
+        wx.showToast({ title: '已取消收藏', icon: 'none' });
       } else {
-        db.collection('collections').add({
-          data: {
-            productId: productId,
-            createTime: new Date()
-          }
-        }).then(res => {
-          this.setData({ isCollected: true });
-          wx.showToast({ title: '收藏成功', icon: 'success' });
-        }).catch(err => {
-          wx.showToast({ title: '收藏失败', icon: 'none' });
-        });
+        await collectionService.addCollection(product._id);
+        this.setData({ isCollected: true });
+        wx.showToast({ title: '收藏成功', icon: 'success' });
       }
-    }).catch(err => {
-      wx.showToast({ title: '请先登录', icon: 'none' });
-    });
+    } catch (err) {
+      console.error('[ProductDetail] Toggle collection failed:', err);
+      wx.showToast({ title: '操作失败，请重试', icon: 'none' });
+    }
   },
 
-  addToCart() {
-    const db = wx.cloud.database();
-    const cartItem = {
-      productId: this.data.product._id,
-      name: this.data.product.name,
-      image: this.data.product.images[0],
-      price: this.data.product.priceDiscount,
-      quantity: this.data.quantity,
-      addTime: new Date()
-    };
+  async addToCart() {
+    const { product, quantity } = this.data;
+    if (!product) {
+      return;
+    }
 
-    db.collection('cart').add({
-      data: cartItem
-    }).then(res => {
+    try {
+      await cartService.addToCart(product, quantity);
       wx.showToast({ title: '已加入购物车', icon: 'success' });
-    }).catch(err => {
-      wx.showToast({ title: '已加入购物车', icon: 'success' });
-    });
+    } catch (err) {
+      console.error('[ProductDetail] Add to cart failed:', err);
+      wx.showToast({ title: '加入购物车失败', icon: 'none' });
+    }
   },
 
   onShareAppMessage() {
+    const { product } = this.data;
+    if (!product) {
+      return {};
+    }
     return {
-      title: this.data.product.name,
-      path: `/pages/product-detail/product-detail?id=${this.data.product._id}`
+      title: product.name,
+      path: `/pages/product-detail/product-detail?id=${product._id}`
     };
   }
 });

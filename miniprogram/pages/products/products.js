@@ -1,3 +1,10 @@
+/**
+ * 产品列表页逻辑
+ */
+const { productService } = require('../../services');
+const { showLoading, hideLoading, showError } = require('../../utils/request');
+const { isEmpty } = require('../../utils/util');
+
 Page({
   data: {
     categories: ['全部', '绿茶', '红茶', '乌龙茶', '普洱', '白茶'],
@@ -20,37 +27,51 @@ Page({
     this.loadProducts();
   },
 
+  async loadProducts() {
+    showLoading('加载中...');
+    try {
+      const { activeCategory, tag, categories } = this.data;
+      const queryOptions = {};
+
+      // 分类筛选
+      if (activeCategory > 0) {
+        queryOptions.category = categories[activeCategory];
+      }
+
+      // 标签筛选
+      if (tag === 'new') {
+        queryOptions.isNew = true;
+      } else if (tag === 'hot') {
+        queryOptions.isHot = true;
+      }
+
+      let products;
+      if (tag === 'master' || tag === 'gift') {
+        // 特殊标签需要服务端支持或本地过滤
+        products = await productService.getProductsByTag(tag);
+      } else {
+        products = await productService.getProductList(queryOptions);
+      }
+
+      // 空数据时使用 mock
+      if (isEmpty(products)) {
+        this.setData({ products: this.getMockProducts() });
+      } else {
+        this.setData({ products: products || [] });
+      }
+    } catch (err) {
+      console.error('[Products] Load products failed:', err);
+      showError('加载失败，请点击重试');
+      this.setData({ products: this.getMockProducts() });
+    } finally {
+      hideLoading();
+    }
+  },
+
   switchCategory(e) {
     const index = e.currentTarget.dataset.index;
     this.setData({ activeCategory: index });
     this.loadProducts();
-  },
-
-  loadProducts() {
-    const db = wx.cloud.database();
-    let query = {};
-    
-    if (this.data.activeCategory > 0) {
-      query.category = this.data.categories[this.data.activeCategory];
-    }
-    
-    if (this.data.tag === 'new') {
-      query.isNew = true;
-    } else if (this.data.tag === 'hot') {
-      query.isHot = true;
-    }
-
-    const dbQuery = Object.keys(query).length > 0 ? query : db.command;
-    
-    db.collection('products').where(query).orderBy('sales', 'desc').get().then(res => {
-      if (res.data.length > 0) {
-        this.setData({ products: res.data });
-      } else {
-        this.setData({ products: this.getMockProducts() });
-      }
-    }).catch(err => {
-      this.setData({ products: this.getMockProducts() });
-    });
   },
 
   getMockProducts() {
@@ -67,24 +88,24 @@ Page({
       { _id: '10', name: '易武普洱 · 生茶', category: '普洱', images: ['https://img.freepik.com/free-photo/tea-pouring_146132-2091.jpg'], priceRetail: 2680, priceDiscount: 1680, tags: ['花蜜香', '回甘强'], isHot: true, isNew: false }
     ];
 
-    if (this.data.tag === 'new') {
+    const { tag, activeCategory, categories } = this.data;
+
+    if (tag === 'new') {
       return allProducts.filter(p => p.isNew);
-    } else if (this.data.tag === 'hot') {
+    } else if (tag === 'hot') {
       return allProducts.filter(p => p.isHot);
-    } else if (this.data.tag === 'master') {
+    } else if (tag === 'master') {
       return allProducts.filter(p => p.priceRetail > 1000);
-    } else if (this.data.tag === 'gift') {
+    } else if (tag === 'gift') {
       return allProducts.filter((p, i) => i % 2 === 0);
-    } else if (this.data.activeCategory > 0) {
-      return allProducts.filter(p => p.category === this.data.categories[this.data.activeCategory]);
+    } else if (activeCategory > 0) {
+      return allProducts.filter(p => p.category === categories[activeCategory]);
     }
     return allProducts;
   },
 
   goToProduct(e) {
     const id = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: `/pages/product-detail/product-detail?id=${id}`
-    });
+    wx.navigateTo({ url: `/pages/product-detail/product-detail?id=${id}` });
   }
 });

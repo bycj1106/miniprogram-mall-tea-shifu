@@ -1,3 +1,10 @@
+/**
+ * 我的页面逻辑
+ */
+const { userService } = require('../../services');
+const { showError } = require('../../utils/request');
+const { DEFAULT_AVATAR, USER_LEVEL } = require('../../constants');
+
 Page({
   data: {
     userInfo: null,
@@ -8,6 +15,7 @@ Page({
       balance: 500
     },
     level: 'gold',
+    levelText: '金叶会员',
     menuItems: [
       { id: 1, name: '我的订单', icon: '📋', url: '' },
       { id: 2, name: '我的收藏', icon: '❤️', url: '' },
@@ -29,13 +37,14 @@ Page({
           userInfo: res.userInfo,
           hasUserInfo: true
         });
-        this.saveUserInfo(res.userInfo);
+        this.syncUserInfo(res.userInfo);
       },
       fail: () => {
+        // 使用默认头像
         this.setData({
           userInfo: {
             nickName: '茶友',
-            avatarUrl: 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lxia07jQodd2fGIYQfG0LAaoGFMHmYfRy0qYQ3qVblbl9n7CWViaNY4ZO5tC5iaLQ/0'
+            avatarUrl: DEFAULT_AVATAR
           },
           hasUserInfo: true
         });
@@ -43,44 +52,21 @@ Page({
     });
   },
 
-  saveUserInfo(userInfo) {
-    const db = wx.cloud.database();
-    wx.cloud.callFunction({
-      name: 'login'
-    }).then(res => {
-      const openid = res.result.openid;
-      db.collection('users').where({
-        _openid: openid
-      }).get().then(res => {
-        if (res.data && res.data.length === 0) {
-          db.collection('users').add({
-            data: {
-              userInfo: userInfo,
-              points: 100,
-              balance: 0,
-              coupons: [],
-              level: 'bronze',
-              createTime: new Date()
-            }
-          }).catch(err => {});
-        } else if (res.data && res.data.length > 0) {
-          db.collection('users').doc(res.data[0]._id).update({
-            data: {
-              userInfo: userInfo
-            }
-          }).catch(err => {});
-        }
-      }).catch(err => {});
-    }).catch(err => {});
+  async syncUserInfo(userInfo) {
+    try {
+      await userService.syncUserInfo(userInfo);
+    } catch (err) {
+      console.error('[Profile] Sync user info failed:', err);
+    }
   },
 
   onGetUserInfo(e) {
-    if (e.detail.userInfo) {
+    if (e.detail && e.detail.userInfo) {
       this.setData({
         userInfo: e.detail.userInfo,
         hasUserInfo: true
       });
-      this.saveUserInfo(e.detail.userInfo);
+      this.syncUserInfo(e.detail.userInfo);
     }
   },
 
