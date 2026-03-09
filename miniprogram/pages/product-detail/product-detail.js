@@ -88,7 +88,7 @@ Page({
         _openid: openid,
         productId: productId
       }).get().then(res => {
-        if (res.data.length > 0) {
+        if (res.data && res.data.length > 0) {
           this.setData({ isCollected: true });
         }
       }).catch(err => {});
@@ -102,6 +102,8 @@ Page({
   },
 
   drawRadarChart() {
+    if (!this.data.product || !this.data.product.radarData) return;
+    
     const query = wx.createSelectorQuery();
     query.select('#radarChart')
       .fields({ node: true, size: true })
@@ -199,24 +201,35 @@ Page({
     const db = wx.cloud.database();
     const productId = this.data.product._id;
     
-    if (this.data.isCollected) {
-      db.collection('collections').where({
-        productId: productId
-      }).remove().then(res => {
-        this.setData({ isCollected: false });
-        wx.showToast({ title: '已取消收藏', icon: 'none' });
-      });
-    } else {
-      db.collection('collections').add({
-        data: {
-          productId: productId,
-          createTime: new Date()
-        }
-      }).then(res => {
-        this.setData({ isCollected: true });
-        wx.showToast({ title: '收藏成功', icon: 'success' });
-      });
-    }
+    wx.cloud.callFunction({
+      name: 'login'
+    }).then(res => {
+      const openid = res.result.openid;
+      
+      if (this.data.isCollected) {
+        db.collection('collections').where({
+          _openid: openid,
+          productId: productId
+        }).remove().then(res => {
+          this.setData({ isCollected: false });
+          wx.showToast({ title: '已取消收藏', icon: 'none' });
+        });
+      } else {
+        db.collection('collections').add({
+          data: {
+            productId: productId,
+            createTime: new Date()
+          }
+        }).then(res => {
+          this.setData({ isCollected: true });
+          wx.showToast({ title: '收藏成功', icon: 'success' });
+        }).catch(err => {
+          wx.showToast({ title: '收藏失败', icon: 'none' });
+        });
+      }
+    }).catch(err => {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+    });
   },
 
   addToCart() {

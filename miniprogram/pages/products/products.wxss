@@ -18,11 +18,12 @@
   color: var(--text-light);
   position: relative;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .tab.active {
   color: var(--primary);
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .tab.active::after {
@@ -31,7 +32,7 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 40rpx;
+  width: 48rpx;
   height: 6rpx;
   background: var(--primary);
   border-radius: 3rpx;
@@ -40,17 +41,21 @@
 .product-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 20rpx;
   padding: 20rpx;
 }
 
 .product-card {
-  width: calc(50% - 10rpx);
+  width: calc(50% - 15rpx);
   background: var(--bg-card);
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   overflow: hidden;
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+  box-shadow: 0 6rpx 20rpx rgba(85, 107, 47, 0.1);
   position: relative;
+  margin-bottom: 20rpx;
+}
+
+.product-card:nth-child(2n+1) {
+  margin-right: 20rpx;
 }
 
 .product-image {
@@ -63,7 +68,19 @@
   top: 16rpx;
   left: 16rpx;
   display: flex;
-  gap: 8rpx;
+}
+
+.tag {
+  font-size: 22rpx;
+  color: #fff;
+  background: var(--accent-red);
+  padding: 6rpx 16rpx;
+  border-radius: 6rpx;
+  font-weight: 500;
+}
+
+.tag + .tag {
+  margin-left: 10rpx;
 }
 
 .tag {
@@ -111,7 +128,6 @@
 .product-price {
   display: flex;
   align-items: center;
-  gap: 12rpx;
   flex-wrap: wrap;
 }
 
@@ -119,28 +135,30 @@
   color: var(--text-muted);
   text-decoration: line-through;
   font-size: 22rpx;
+  margin-right: 12rpx;
 }
 
 .price-discount {
   color: var(--accent-red);
-  font-size: 30rpx;
-  font-weight: bold;
+  font-size: 32rpx;
+  font-weight: 700;
   font-family: Georgia, serif;
 }
 
 .seal {
-  width: 52rpx;
-  height: 52rpx;
-  background: var(--accent-red);
+  width: 56rpx;
+  height: 56rpx;
+  background: linear-gradient(135deg, #A93226 0%, #7B241C 100%);
   border-radius: 50%;
   color: #fff;
-  font-size: 16rpx;
+  font-size: 18rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
   line-height: 1.2;
   margin-left: auto;
+  box-shadow: 0 4rpx 8rpx rgba(169, 50, 38, 0.3);
 }
 
 .empty {

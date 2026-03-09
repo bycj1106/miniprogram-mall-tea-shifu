@@ -13,8 +13,8 @@
     </view>
     <text class="product-name">{{product.name}}</text>
     <view class="product-meta">
-      <text class="meta-item">产地：{{product.origin}}</text>
-      <text class="meta-item">年份：{{product.year}}</text>
+      <text class="meta-item" wx:if="{{product.origin}}">产地：{{product.origin}}</text>
+      <text class="meta-item" wx:if="{{product.year}}">年份：{{product.year}}</text>
     </view>
   </view>
 
@@ -24,12 +24,12 @@
       <text class="price-discount">¥{{product.priceDiscount}}</text>
       <text class="price-retail">¥{{product.priceRetail}}</text>
     </view>
-    <view class="save-info">
+    <view class="save-info" wx:if="{{product.priceRetail > product.priceDiscount}}">
       <text class="save-amount">省¥{{product.priceRetail - product.priceDiscount}}</text>
     </view>
   </view>
 
-  <view class="section">
+  <view class="section" wx:if="{{product.radarData}}">
     <view class="section-title">口感特征</view>
     <view class="radar-container">
       <canvas type="2d" id="radarChart" class="radar-chart"></canvas>
@@ -62,12 +62,12 @@
     </view>
   </view>
 
-  <view class="section">
+  <view class="section" wx:if="{{product.description}}">
     <view class="section-title">产品描述</view>
     <text class="description">{{product.description}}</text>
   </view>
 
-  <view class="section">
+  <view class="section" wx:if="{{product.tags && product.tags.length > 0}}">
     <view class="section-title">口感标签</view>
     <view class="flavor-tags">
       <text class="flavor-tag" wx:for="{{product.tags}}" wx:key="index">{{item}}</text>
@@ -82,5 +82,11 @@
       </view>
     </view>
     <view class="btn-cart" bindtap="addToCart">加入购物车</view>
+  </view>
+</view>
+
+<view class="container" wx:else>
+  <view class="loading">
+    <text>加载中...</text>
   </view>
 </view>

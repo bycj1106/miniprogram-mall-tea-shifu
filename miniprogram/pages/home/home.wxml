@@ -48,7 +48,7 @@
         </view>
         <view class="product-info">
           <text class="product-name">{{item.name}}</text>
-          <view class="product-flavor">
+          <view class="product-flavor" wx:if="{{item.tags && item.tags.length > 0}}">
             <text wx:for="{{item.tags}}" wx:for-item="tag" wx:key="index" class="flavor-tag">{{tag}}</text>
           </view>
           <view class="product-price">

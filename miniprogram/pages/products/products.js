@@ -40,8 +40,14 @@ Page({
       query.isHot = true;
     }
 
+    const dbQuery = Object.keys(query).length > 0 ? query : db.command;
+    
     db.collection('products').where(query).orderBy('sales', 'desc').get().then(res => {
-      this.setData({ products: res.data });
+      if (res.data.length > 0) {
+        this.setData({ products: res.data });
+      } else {
+        this.setData({ products: this.getMockProducts() });
+      }
     }).catch(err => {
       this.setData({ products: this.getMockProducts() });
     });
@@ -65,6 +71,10 @@ Page({
       return allProducts.filter(p => p.isNew);
     } else if (this.data.tag === 'hot') {
       return allProducts.filter(p => p.isHot);
+    } else if (this.data.tag === 'master') {
+      return allProducts.filter(p => p.priceRetail > 1000);
+    } else if (this.data.tag === 'gift') {
+      return allProducts.filter((p, i) => i % 2 === 0);
     } else if (this.data.activeCategory > 0) {
       return allProducts.filter(p => p.category === this.data.categories[this.data.activeCategory]);
     }

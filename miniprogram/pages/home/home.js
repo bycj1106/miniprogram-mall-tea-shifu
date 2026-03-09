@@ -11,15 +11,17 @@ Page({
     activeTab: 'hot'
   },
 
-  onLoad() {
-    this.loadBanners();
-    this.loadProducts();
-  },
-
   onShow() {
     this.setData({
       activeTab: 'hot'
     });
+    this.loadProducts();
+  },
+
+  onLoad() {
+    this.loadBanners();
+    this.loadProducts();
+    this.loadNewProducts();
   },
 
   loadBanners() {
@@ -96,7 +98,7 @@ Page({
   },
 
   onSearch() {
-    wx.navigateTo({
+    wx.switchTab({
       url: '/pages/products/products'
     });
   },
@@ -115,8 +117,8 @@ Page({
 
   goToProducts(e) {
     const tag = e.currentTarget.dataset.tag;
-    wx.navigateTo({
-      url: `/pages/products/products?tag=${tag}`
+    wx.switchTab({
+      url: '/pages/products/products'
     });
   }
 });

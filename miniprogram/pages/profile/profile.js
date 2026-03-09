@@ -52,7 +52,7 @@ Page({
       db.collection('users').where({
         _openid: openid
       }).get().then(res => {
-        if (res.data.length === 0) {
+        if (res.data && res.data.length === 0) {
           db.collection('users').add({
             data: {
               userInfo: userInfo,
@@ -62,16 +62,16 @@ Page({
               level: 'bronze',
               createTime: new Date()
             }
-          });
-        } else {
+          }).catch(err => {});
+        } else if (res.data && res.data.length > 0) {
           db.collection('users').doc(res.data[0]._id).update({
             data: {
               userInfo: userInfo
             }
-          });
+          }).catch(err => {});
         }
-      });
-    });
+      }).catch(err => {});
+    }).catch(err => {});
   },
 
   onGetUserInfo(e) {
